@@ -1,40 +1,114 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-// Desafio Batalha Naval - MateCheck
-// Este código inicial serve como base para o desenvolvimento do sistema de Batalha Naval.
-// Siga os comentários para implementar cada parte do desafio.
+#define TAMANHO_TABULEIRO 10
+#define TAMANHO_NAVIO 3
+#define TOTAL_NAVIOS 2
+
+int naviosDestruidos = 0;
+
+void exibirTabuleiro(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]) {
+    printf("   ");
+    for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+        printf("%d ", j);
+    }
+    printf("\n");
+
+    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
+        printf("%d  ", i);
+        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+            if (tabuleiro[i][j] == 0) {
+                printf("~ "); // Água
+            } else if (tabuleiro[i][j] == 3) {
+                printf("N "); // Navio (oculto para o jogador)
+            } else if (tabuleiro[i][j] == 2) {
+                printf("X "); // Navio atingido
+            }
+        }
+        printf("\n");
+    }
+}
+
+void posicionarNavioHorizontal(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int linha, int coluna) {
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        tabuleiro[linha][coluna + i] = 3;
+    }
+}
+
+void posicionarNavioVertical(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int linha, int coluna) {
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        tabuleiro[linha + i][coluna] = 3;
+    }
+}
+
+int verificarNavioDestruido(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int linha, int coluna) {
+    int partesRestantes = 0;
+
+    // Verifica na horizontal
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        if (coluna + i < TAMANHO_TABULEIRO && tabuleiro[linha][coluna + i] == 3) {
+            partesRestantes++;
+        }
+    }
+
+    // Verifica na vertical
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        if (linha + i < TAMANHO_TABULEIRO && tabuleiro[linha + i][coluna] == 3) {
+            partesRestantes++;
+        }
+    }
+
+    return partesRestantes == 0;
+}
+
+void atacar(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int linha, int coluna) {
+    if (tabuleiro[linha][coluna] == 3) {
+        tabuleiro[linha][coluna] = 2;
+        printf("Acertou um navio!\n");
+
+        if (verificarNavioDestruido(tabuleiro, linha, coluna)) {
+            naviosDestruidos++;
+            printf("Você destruiu um navio!\n");
+        }
+    } else if (tabuleiro[linha][coluna] == 0) {
+        printf("Água! Tente novamente.\n");
+    } else {
+        printf("Essa posição já foi atacada.\n");
+    }
+}
 
 int main() {
-    // Nível Novato - Posicionamento dos Navios
-    // Sugestão: Declare uma matriz bidimensional para representar o tabuleiro (Ex: int tabuleiro[5][5];).
-    // Sugestão: Posicione dois navios no tabuleiro, um verticalmente e outro horizontalmente.
-    // Sugestão: Utilize `printf` para exibir as coordenadas de cada parte dos navios.
+    int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO] = {0};
+    int linha, coluna;
+    int tentativas = 0;
 
-    // Nível Aventureiro - Expansão do Tabuleiro e Posicionamento Diagonal
-    // Sugestão: Expanda o tabuleiro para uma matriz 10x10.
-    // Sugestão: Posicione quatro navios no tabuleiro, incluindo dois na diagonal.
-    // Sugestão: Exiba o tabuleiro completo no console, mostrando 0 para posições vazias e 3 para posições ocupadas.
+    // Posicionar os navios
+    posicionarNavioHorizontal(tabuleiro, 2, 3);
+    posicionarNavioVertical(tabuleiro, 5, 5);
 
-    // Nível Mestre - Habilidades Especiais com Matrizes
-    // Sugestão: Crie matrizes para representar habilidades especiais como cone, cruz, e octaedro.
-    // Sugestão: Utilize estruturas de repetição aninhadas para preencher as áreas afetadas por essas habilidades no tabuleiro.
-    // Sugestão: Exiba o tabuleiro com as áreas afetadas, utilizando 0 para áreas não afetadas e 1 para áreas atingidas.
+    while (naviosDestruidos < TOTAL_NAVIOS) {
+        printf("\nTabuleiro atual:\n");
+        exibirTabuleiro(tabuleiro);
 
-    // Exemplos de exibição das habilidades:
-    // Exemplo para habilidade em cone:
-    // 0 0 1 0 0
-    // 0 1 1 1 0
-    // 1 1 1 1 1
+        printf("\nNavios destruídos: %d/%d\n", naviosDestruidos, TOTAL_NAVIOS);
+
+        // Solicitar coordenadas para ataque
+        printf("\nEscolha uma linha (0-9): ");
+        scanf("%d", &linha);
+        printf("Escolha uma coluna (0-9): ");
+        scanf("%d", &coluna);
+
+        if (linha < 0 || linha >= TAMANHO_TABULEIRO || coluna < 0 || coluna >= TAMANHO_TABULEIRO) {
+            printf("Coordenada inválida! Tente novamente.\n");
+            continue;
+        }
+
+        // Realizar ataque
+        atacar(tabuleiro, linha, coluna);
+        tentativas++;
+    }
+
+    printf("\nParabéns! Você destruiu todos os navios em %d tentativas.\n", tentativas);
     
-    // Exemplo para habilidade em octaedro:
-    // 0 0 1 0 0
-    // 0 1 1 1 0
-    // 0 0 1 0 0
-
-    // Exemplo para habilidade em cruz:
-    // 0 0 1 0 0
-    // 1 1 1 1 1
-    // 0 0 1 0 0
-
     return 0;
 }
